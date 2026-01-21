@@ -1,0 +1,50 @@
+﻿@inject NavigationManager NavigationManager
+@inject PcComponentsClient Client
+@rendermode InteractiveServer
+
+@* Card deleting modal window *@
+<div class="modal fade" id="@GetModalId(Component)" tabindex="-1" aria-labelledby="@GetModalLabelId(Component)" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="@GetModalLabelId(Component)">@title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" @onclick="@ConfirmDeleteAsync">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public PcComponent? Component { get; set; }
+
+    private string title = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        title = $"Delete component: {Component?.Name}";
+    }
+
+    public static string GetModalId(PcComponent component)
+    {
+        ArgumentNullException.ThrowIfNull(component);
+        return $"deleteModal-{component.Id}";
+    }
+
+    public static string GetModalLabelId(PcComponent component)
+    {
+        ArgumentNullException.ThrowIfNull(component);
+        return $"deleteModalLabel-{component.Id}";
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        ArgumentNullException.ThrowIfNull(Component);
+        await Client.DeleteComponentAsync(Component.Id);
+        NavigationManager.NavigateTo("/");
+    }
+}

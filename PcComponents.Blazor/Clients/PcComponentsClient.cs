@@ -29,6 +29,12 @@ namespace PcComponents.Blazor.Clients
             var resp = await httpClient.PutAsJsonAsync($"components/{updatedComponent.Id}", updatedComponent);
             resp.EnsureSuccessStatusCode();
         }
+
+        // Delete a component
+        public async Task DeleteComponentAsync(int id)
+        {
+            await httpClient.DeleteAsync($"components/{id}");
+        }
     }
 }
 

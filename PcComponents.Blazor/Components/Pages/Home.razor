@@ -32,7 +32,11 @@
                                 <a class="btn btn-sm btn-outline-secondary" title="Edit" href="@($"/addEditComponent/{component.Id}")">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                            </div>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(component)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <DeleteComponent Component="@component"></DeleteComponent>
+                            </div>  
                         </div>
                         <div class="card-body text-center d-flex flex-column justify-content-center">
                             <p class="card-text fw-semibold mb-2">
@@ -48,6 +52,7 @@
             }
         </div>
     }
+
 </div>
 
 @code {
@@ -56,5 +61,10 @@
     protected override async Task OnInitializedAsync()
     {
         components = await Client.GetComponentsAsync();
+    }
+
+    private string GetDeleteModalId(PcComponent component)
+    {
+        return $"#{DeleteComponent.GetModalId(component)}";
     }
 }
