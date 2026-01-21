@@ -1,0 +1,154 @@
+﻿@page "/addEditComponent"
+@page "/addEditComponent/{id:int}"
+@rendermode InteractiveServer
+
+@inject NavigationManager NavigationManager
+@inject PcComponentsClient ComponentsClient
+@inject CategoriesClient CategoriesClient
+
+<PageTitle>@title</PageTitle>
+
+<div class="container py-3">    
+    <div class="d-flex align-items-center justify-content-center mb-3">
+        <h3 class="mb-0">@title</h3>
+        <span class="badge text-bg-secondary ms-2">Components</span>
+    </div>
+
+    @if (categories is null || component is null)
+    {
+        <div class="d-flex align-items-center text-muted">
+            <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+            <span>Loading...</span>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <EditForm Model="@component" FormName="addEditComponent" OnValidSubmit="HandleSubmitAsync">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="row g-3">
+                                @* Component Name *@
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <InputText class="form-control form-control-sm" id="name" @bind-Value="component.Name" placeholder="Name" />
+                                        <label for="name">Name</label>
+                                        <div class="form-text">
+                                            <ValidationMessage For="() => component.Name" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* Category Name *@
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating">
+                                        <InputSelect id="category" class="form-select form-select-sm" @bind-Value="component.CategoryId">
+                                            <option value="">Select a category</option>
+                                            @foreach (var category in categories)
+                                            {
+                                                <option value="@category.Id">@category.Name</option>
+                                            }
+                                        </InputSelect>
+                                        <label for="category">Category</label>
+                                        <div class="form-text">
+                                            <ValidationMessage For="() => component.CategoryId"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* Component Price *@
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating">
+                                        <InputNumber class="form-control form-control-sm" id="price" @bind-Value="component.Price" step="0.01" placeholder="0.00" />
+                                        <label for="price">Price</label>
+                                        <div class="form-text">
+                                            <ValidationMessage For="() => component.Price"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @* Component Release Date *@
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating">
+                                        <InputDate class="form-control form-control-sm" id="releaseDate" @bind-Value="component.ReleaseDate" />
+                                        <label for="releaseDate">Release Date</label>
+                                        <div class="form-text">
+                                            <ValidationMessage For="() => component.ReleaseDate"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        <a role="button" class="btn btn-outline-secondary btn-sm" href="/">Cancel</a>
+                                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private PcComponent? component { get; set; }
+    private Category[]? categories = Array.Empty<Category>();
+
+    private string title = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (component is not null)
+            return;
+
+        // Edit operation
+        if (Id.HasValue)
+        {
+            component = await ComponentsClient.GetComponentByIdAsync(Id.Value);
+            title = $"Edit component: {component.Name}";
+        }
+        // Add operation
+        else
+        {
+            component = new()
+            {
+                Name = string.Empty,
+                ReleaseDate = DateOnly.FromDateTime(DateTime.UtcNow)
+            };
+            title = $"New component";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoriesClient.GetCategoriesAsync();
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        ArgumentNullException.ThrowIfNull(component);
+
+        if (Id is null)
+        {
+            await ComponentsClient.AddComponentAsync(component);
+        }
+        else
+        {
+            component.Id = Id.Value;
+            await ComponentsClient.UpdateComponentAsync(component);
+        }
+
+        NavigationManager.NavigateTo("/");
+    }
+}

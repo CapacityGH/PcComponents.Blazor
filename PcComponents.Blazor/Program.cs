@@ -10,12 +10,13 @@ namespace PcComponents.Blazor
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddRazorComponents();
+            builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
             var pcComponentApiUrl = 
                 builder.Configuration["componentApiUrl"] ?? throw new Exception("PC Component API URL is not set");
 
             builder.Services.AddHttpClient<PcComponentsClient>(client => client.BaseAddress = new Uri(pcComponentApiUrl));
+            builder.Services.AddHttpClient<CategoriesClient>(client => client.BaseAddress = new Uri(pcComponentApiUrl));
 
             var app = builder.Build();
 
@@ -32,7 +33,9 @@ namespace PcComponents.Blazor
             app.UseAntiforgery();
 
             app.MapStaticAssets();
-            app.MapRazorComponents<App>();
+
+            // Server-side rendering enabled
+            app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
             app.Run();
         }

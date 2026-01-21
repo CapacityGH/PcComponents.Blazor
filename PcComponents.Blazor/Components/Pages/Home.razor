@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject PcComponentsClient Client
+@inject CategoriesClient Category
 
 <PageTitle>My PC Components DB</PageTitle>
 
@@ -7,7 +8,10 @@
     <h1 class="text-center text-primary mb-4">My PC Components</h1>
     @if (components is null)
     {
-        <p class="text-center text-muted">Loading...</p>
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-info me-2" role="status" aria-hidden="true"></div>
+            <span class="text-muted">Fetching components...</span>
+        </div>
     }
     else
     {
@@ -20,10 +24,15 @@
                             <div class="me-2">
                                 <h5 class="card-title mb-0 text-info">@component.Name</h5>
                             </div>
-                            @if (!string.IsNullOrWhiteSpace(component.Category?.Name))
-                            {
-                                <span class="badge bg-info text-dark">@component.Category?.Name</span>
-                            }
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrWhiteSpace(component.Category?.Name))
+                                {
+                                    <span class="badge bg-info text-dark">@component.Category?.Name</span>
+                                }
+                                <a class="btn btn-sm btn-outline-secondary" title="Edit" href="@($"/addEditComponent/{component.Id}")">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
                         </div>
                         <div class="card-body text-center d-flex flex-column justify-content-center">
                             <p class="card-text fw-semibold mb-2">

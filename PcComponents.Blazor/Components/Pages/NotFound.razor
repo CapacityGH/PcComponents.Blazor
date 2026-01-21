@@ -1,5 +1,22 @@
 ﻿@page "/not-found"
 @layout MainLayout
 
-<h3>Not Found</h3>
-<p>Sorry, the content you are looking for does not exist.</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <div class="display-4 mb-2" aria-hidden="true">🔎</div>
+                    <h1 class="h3 mb-2">Page not found</h1>
+                    <p class="text-muted mb-4">
+                        Sorry, the content you are looking for does not exist or may have been moved.
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a class="btn btn-primary" href="/" title="Go back to Home">Go to Home</a>
+                        <a class="btn btn-outline-secondary" href="javascript:history.back()" title="Go back to previous page">Go Back</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
